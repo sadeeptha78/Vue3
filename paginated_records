@@ -1,0 +1,236 @@
+<template>
+    <div class="min-vh-100 w-100 py-5">
+        <div class="w-100 h-100 px-3 px-sm-4 px-lg-6">
+            <div class="row justify-content-center h-100 m-0">
+                <div class="bg-white overflow-hidden shadow-sm w-100 h-100 rounded">
+                    <div class="p-5 bg-white test-special h-100 d-flex flex-column">
+                        <h2 class="mb-4">Records</h2>
+                        <div class="table-responsive flex-grow-1">
+                            <table class="table table-striped table-hover table-bordered align-middle w-100">
+                                <thead class="custom-header text-center">
+
+                                <tr>
+                                    <th scope="col">Id</th>
+                                    <th scope="col"><span>Name</span></th>
+                                    <th scope="col"><span>Email</span></th>
+                                    <th scope="col"><span>Checked In <br>  Date</span></th>
+                                    <th scope="col">Ref Number</th>
+                                    <th scope="col">Comment</th>
+                                </tr>
+                                </thead>
+                                <tbody class="text-right">
+                                <tr v-for="record in paginatedRecords" :key="record.id">
+                                    <td>{{ record.id }}</td>
+                                    <td>{{ record.name }}</td>
+                                    <td>{{ record.email }}</td>
+                                    <td>{{ record.updated_at }}</td>
+                                    <td>{{ record.ref }}</td>
+                                    <td>{{ record.comment }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <nav class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                                    <button class="page-link" @click="prevPage">Previous</button>
+                                </li>
+
+                                <li
+                                    class="page-item"
+                                    v-for="page in totalPages"
+                                    :key="page"
+                                    :class="{ active: page === currentPage }"
+                                >
+                                    <button class="page-link" @click="setPage(page)">
+                                        {{ page }}
+                                    </button>
+                                </li>
+
+                                <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                                    <button class="page-link" @click="nextPage">Next</button>
+                                </li>
+                            </ul>
+                        </nav>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+
+import {computed, ref} from 'vue';
+
+export default {
+
+    name: "tableWithPagination.vue",
+
+    setup() {
+
+        let allInfo = ref([
+            {
+                id: "1",
+                name: "Same",
+                email: "same1@gmail.com",
+                updated_at: "2025-05-30 00:00:00.000",
+                ref: "123424-zxc",
+                comment: "We need a booking for one big extra bed"
+            },
+            {
+                id: "2",
+                name: "Alex",
+                email: "alex2@gmail.com",
+                updated_at: "2025-05-29 00:00:00.000",
+                ref: "223424-zxc",
+                comment: "Extra pillows requested"
+            },
+            {
+                id: "3",
+                name: "Jamie",
+                email: "jamie3@gmail.com",
+                updated_at: "2025-05-28 00:00:00.000",
+                ref: "323424-zxc",
+                comment: "Need airport pickup"
+            },
+            {
+                id: "4",
+                name: "Robin",
+                email: "robin4@gmail.com",
+                updated_at: "2025-05-27 00:00:00.000",
+                ref: "423424-zxc",
+                comment: "Vegan breakfast, please"
+            },
+            {
+                id: "5",
+                name: "Taylor",
+                email: "taylor5@gmail.com",
+                updated_at: "2025-05-26 00:00:00.000",
+                ref: "523424-zxc",
+                comment: "Please confirm pet-friendly room"
+            },
+            {
+                id: "6",
+                name: "Jordan",
+                email: "jordan6@gmail.com",
+                updated_at: "2025-05-25 00:00:00.000",
+                ref: "623424-zxc",
+                comment: "Requesting early check-in"
+            },
+            {
+                id: "7",
+                name: "Morgan",
+                email: "morgan7@gmail.com",
+                updated_at: "2025-05-24 00:00:00.000",
+                ref: "723424-zxc",
+                comment: "Please add crib to room"
+            },
+            {
+                id: "8",
+                name: "Casey",
+                email: "casey8@gmail.com",
+                updated_at: "2025-05-23 00:00:00.000",
+                ref: "823424-zxc",
+                comment: "Can we get late checkout?"
+            },
+            {
+                id: "9",
+                name: "Drew",
+                email: "drew9@gmail.com",
+                updated_at: "2025-05-22 00:00:00.000",
+                ref: "923424-zxc",
+                comment: "Connecting rooms if possible"
+            },
+            {
+                id: "10",
+                name: "Reese",
+                email: "reese10@gmail.com",
+                updated_at: "2025-05-21 00:00:00.000",
+                ref: "1023424-zxc",
+                comment: "Sea view room requested"
+            },
+            {
+                id: "11",
+                name: "Parker",
+                email: "parker11@gmail.com",
+                updated_at: "2025-05-20 00:00:00.000",
+                ref: "1123424-zxc",
+                comment: "Quiet room if available"
+            },
+            {
+                id: "12",
+                name: "Skyler",
+                email: "skyler12@gmail.com",
+                updated_at: "2025-05-19 00:00:00.000",
+                ref: "1223424-zxc",
+                comment: "Add room decoration for birthday"
+            }
+
+        ]);
+
+        function formatToUKDate(isoDateString) {
+            const date = new Date(isoDateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+
+        allInfo.value.forEach((item) => {
+            item.updated_at = formatToUKDate(item.updated_at)
+        })
+
+        const currentPage = ref(1);
+        const itemsPerPage = 4;
+
+        const paginatedRecords = computed(() => {
+
+            const start = (currentPage.value - 1) * itemsPerPage;
+            return allInfo.value.slice(start, start + itemsPerPage);
+        });
+
+        const totalPages = computed(() => {
+            return Math.ceil(allInfo.value.length / itemsPerPage);
+        });
+
+        function setPage(page) {
+            currentPage.value = page;
+        }
+
+        function prevPage() {
+            if (currentPage.value > 1) currentPage.value--;
+        }
+
+        function nextPage() {
+            if (currentPage.value < totalPages.value) currentPage.value++;
+        }
+
+
+        return {
+
+            allInfo,
+            paginatedRecords,
+            totalPages,
+            setPage,
+            prevPage,
+            nextPage,
+        }
+    }
+}
+</script>
+
+<style scoped>
+
+.disabled {
+    background-color: #cdd2d0;
+}
+
+.custom-header th {
+    background-color: #a7a5a5 !important;
+    color: white;
+}
+
+</style>
